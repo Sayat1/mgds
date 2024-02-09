@@ -48,7 +48,7 @@ class ScaleCropImage(
             y_offset = rand.randint(0, scale_resolution[0] - crop_resolution[0])
             x_offset = rand.randint(0, scale_resolution[1] - crop_resolution[1])
         else:
-            y_offset = (scale_resolution[0] - crop_resolution[0]) // 2
+            y_offset = 0
             x_offset = (scale_resolution[1] - crop_resolution[1]) // 2
 
         crop_offset = (y_offset, x_offset)
