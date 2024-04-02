@@ -1,7 +1,8 @@
 import os
+import sys
 from typing import Callable
 
-from tqdm.auto import tqdm
+from tqdm import tqdm
 
 from mgds.PipelineModule import PipelineModule
 from mgds.pipelineModuleTypes.SerialPipelineModule import SerialPipelineModule
@@ -41,7 +42,7 @@ class SaveText(
         if self.before_save_fun is not None:
             self.before_save_fun()
 
-        for index in tqdm(range(self._get_previous_length(self.original_path_in_name)),
+        for index in tqdm(range(self._get_previous_length(self.original_path_in_name)),position=0, file=sys.stdout,
                           desc='writing debug text for \'' + self.text_in_name + '\''):
             text = self._get_previous_item(variation, self.text_in_name, index)
             original_path = self._get_previous_item(variation, self.original_path_in_name, index)

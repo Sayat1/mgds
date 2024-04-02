@@ -2,10 +2,11 @@ import hashlib
 import json
 import math
 import os
+import sys
 from typing import Any, Callable
 
 import torch
-from tqdm.auto import tqdm
+from tqdm import tqdm
 
 from mgds.PipelineModule import PipelineModule
 from mgds.pipelineModuleTypes.SingleVariationRandomAccessPipelineModule import SingleVariationRandomAccessPipelineModule
@@ -170,7 +171,7 @@ class DiskCache(
 
                     aggregate_cache = []
 
-                    for group_index, in_index in enumerate(tqdm(self.group_indices[group_key], desc='caching')):
+                    for group_index, in_index in enumerate(tqdm(self.group_indices[group_key],position=0, file=sys.stdout, desc='caching')):
                         if in_index % 100 == 0:
                             self._torch_gc()
 

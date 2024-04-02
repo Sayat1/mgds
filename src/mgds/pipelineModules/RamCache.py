@@ -1,9 +1,10 @@
 import hashlib
 import json
 import math
+import sys
 from typing import Any, Callable
 
-from tqdm.auto import tqdm
+from tqdm import tqdm
 
 from mgds.PipelineModule import PipelineModule
 from mgds.pipelineModuleTypes.SingleVariationRandomAccessPipelineModule import SingleVariationRandomAccessPipelineModule
@@ -123,7 +124,7 @@ class RamCache(
 
         self.cache = []
         length = sum(x for x in self.group_output_samples.values())
-        for index in tqdm(range(length), desc='caching'):
+        for index in enumerate(tqdm(range(length),position=0, file=sys.stdout, desc='caching')):
             if index % 100 == 0:
                 self._torch_gc()
 

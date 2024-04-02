@@ -1,8 +1,9 @@
 import os
+import sys
 from typing import Callable
 
 from torchvision import transforms
-from tqdm.auto import tqdm
+from tqdm import tqdm
 
 from mgds.PipelineModule import PipelineModule
 from mgds.pipelineModuleTypes.SerialPipelineModule import SerialPipelineModule
@@ -46,7 +47,7 @@ class SaveImage(
         if self.before_save_fun is not None:
             self.before_save_fun()
 
-        for index in tqdm(range(self._get_previous_length(self.original_path_in_name)),
+        for index in tqdm(range(self._get_previous_length(self.original_path_in_name)),position=0, file=sys.stdout,
                           desc='writing debug images for \'' + self.image_in_name + '\''):
             image_tensor = self._get_previous_item(variation, self.image_in_name, index)
             original_path = self._get_previous_item(variation, self.original_path_in_name, index)

@@ -1,6 +1,6 @@
 import os
-
-from tqdm.auto import tqdm
+import sys
+from tqdm import tqdm
 
 from mgds.PipelineModule import PipelineModule
 from mgds.pipelineModuleTypes.RandomAccessPipelineModule import RandomAccessPipelineModule
@@ -54,7 +54,7 @@ class CollectPaths(
         return files
 
     def start(self, variation: int):
-        for index in tqdm(range(self._get_previous_length(self.concept_in_name)), desc='enumerating sample paths'):
+        for index in tqdm(range(self._get_previous_length(self.concept_in_name)),position=0, file=sys.stdout, desc='enumerating sample paths'):
             concept = self._get_previous_item(variation, self.concept_in_name, index)
             include_subdirectories = self._get_previous_item(variation, self.include_subdirectories_in_name, index)
             path = concept[self.path_in_name]
