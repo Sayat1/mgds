@@ -2,7 +2,7 @@ import os
 from typing import Callable
 
 from torchvision import transforms
-from tqdm import tqdm
+from tqdm.auto import tqdm
 
 from mgds.PipelineModule import PipelineModule
 from mgds.pipelineModuleTypes.SerialPipelineModule import SerialPipelineModule
