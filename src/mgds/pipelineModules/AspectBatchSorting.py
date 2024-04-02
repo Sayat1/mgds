@@ -64,7 +64,7 @@ class AspectBatchSorting(
 
     def __sort_resolutions(self, variation: int):
         resolutions = []
-        for index in tqdm(range(self._get_previous_length(self.resolution_in_name)),position=0, file=sys.stdout, desc='caching resolutions'):
+        for index in enumerate(tqdm(range(self._get_previous_length(self.resolution_in_name)),position=0, file=sys.stdout, desc='caching resolutions')):
             resolution = self._get_previous_item(self.current_variation, self.resolution_in_name, index)
 
             resolution = resolution[0], resolution[1]
