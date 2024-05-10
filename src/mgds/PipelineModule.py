@@ -64,6 +64,15 @@ class PipelineModule(metaclass=ABCMeta):
     ):
         raise Exception(f"wrong variation requested by {self} from {str(module)}, name: {name}, current_variation: {current_variation}, requested_variation: {requested_variation}")
 
+    def __raise_index_error(
+            self,
+            module: 'PipelineModule',
+            name: str,
+            current_index: int,
+            requested_index: int,
+    ):
+        raise Exception(f"wrong index requested by {self} from {str(module)}, name: {name}, current_index: {current_index}, requested_index: {requested_index}")
+
     def _get_previous_item(self, variation: int, name: str, index: int):
         split_name = name.split('.')
         item_name = split_name[0]
@@ -92,7 +101,10 @@ class PipelineModule(metaclass=ABCMeta):
                     if isinstance(module, SerialPipelineModule):
                         if variation != module.current_variation:
                             self.__raise_variation_error(module, name, module.current_variation, variation)
-                        item = module.get_item(index, item_name)
+                        if index != module.current_index:
+                            self.__raise_index_error(module, name, module.current_index, index)
+                        item = module.get_next_item()
+                        module.current_index += 1
                     module.__local_cache.variation_cache_index = variation
                     module.__local_cache.item_cache_index = index
                     module.__local_cache.item_cache = item
@@ -110,7 +122,10 @@ class PipelineModule(metaclass=ABCMeta):
                     if isinstance(module, SerialPipelineModule):
                         if variation != module.current_variation:
                             self.__raise_variation_error(module, name, module.current_variation, variation)
-                        item = module.get_item(index, item_name)
+                        if index != module.current_index:
+                            self.__raise_index_error(module, name, module.current_index, index)
+                        item = module.get_next_item()
+                        module.current_index += 1
                     module.__local_cache.item_cache.update(item)
                     item = item[item_name]
 
@@ -137,7 +152,10 @@ class PipelineModule(metaclass=ABCMeta):
             module = self.pipeline.modules[previous_module_index]
             if item_name in module.get_outputs():
                 if module.__local_cache.length_cache < 0:
-                    module.__local_cache.length_cache = module.length()
+                    if isinstance(module, SerialPipelineModule):
+                        module.__local_cache.length_cache = module.approximate_length()
+                    else:
+                        module.__local_cache.length_cache = module.length()
                 return module.__local_cache.length_cache
 
     def _get_previous_meta(self, variation: int, name: str):
@@ -154,6 +172,16 @@ class PipelineModule(metaclass=ABCMeta):
                     if variation != module.current_variation:
                         self.__raise_variation_error(module, name, module.current_variation, variation)
                     return module.get_meta(name)
+
+    def _has_previous_next(self, name: str):
+        for previous_module_index in range(self.__module_index - 1, -1, -1):
+            module = self.pipeline.modules[previous_module_index]
+            if name in module.get_outputs():
+                if isinstance(module, SerialPipelineModule):
+                    return module.has_next()
+                else:
+                    return True
+
 
     def _all_contexts(self, autocast_contexts: list[torch.autocast | None]) -> ExitStack:
         stack = ExitStack()
@@ -178,10 +206,6 @@ class PipelineModule(metaclass=ABCMeta):
 
         if torch.backends.mps.is_available():
             torch.mps.empty_cache()
-
-    @abstractmethod
-    def length(self) -> int:
-        pass
 
     @abstractmethod
     def get_inputs(self) -> list[str]:

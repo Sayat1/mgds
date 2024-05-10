@@ -43,15 +43,12 @@ class DiskCache(
 
         self.group_enabled_in_name = group_enabled_in_name
 
-        self.before_cache_fun = before_cache_fun
+        self.before_cache_fun = (lambda: None) if before_cache_fun is None else before_cache_fun
 
         self.group_variations = {}
         self.group_indices = {}
         self.group_output_samples = {}
         self.variations_initialized = False
-
-        if len(self.split_names) + len(self.aggregate_names) == 0:
-            raise ValueError('No cache items supplied')
 
     def length(self) -> int:
         if not self.variations_initialized:

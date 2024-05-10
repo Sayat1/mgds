@@ -1,7 +1,7 @@
 import random
 
 import torch
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader, Dataset, IterableDataset
 
 from mgds.ConceptPipelineModule import ConceptPipelineModule
 from mgds.LoadingPipeline import LoadingPipeline
@@ -9,8 +9,9 @@ from mgds.PipelineModule import PipelineModule, PipelineState
 from mgds.SettingsPipelineModule import SettingsPipelineModule
 
 
-class MGDS(Dataset):
+class MGDS(IterableDataset):
     device: torch.device
+    batch_size: int
     loading_pipeline: LoadingPipeline
 
     def __init__(
@@ -26,6 +27,7 @@ class MGDS(Dataset):
             initial_epoch_sample: int = 0
     ):
         self.device = device
+        self.batch_size = batch_size
         seed = (random.randint(-(1 << 30), 1 << 30) if seed == -1 else seed)
         self.loading_pipeline = LoadingPipeline(
             device,
@@ -37,14 +39,11 @@ class MGDS(Dataset):
             initial_epoch_sample,
         )
 
-    def __len__(self):
-        return self.loading_pipeline.length()
-
-    def __getitem__(self, index):
-        return self.loading_pipeline.get_item(index)
+    def __iter__(self):
+        return self.loading_pipeline
 
     def approximate_length(self) -> int:
-        return self.loading_pipeline.approximate_length()
+        return self.loading_pipeline.approximate_length() // self.batch_size
 
     def start_next_epoch(self):
         self.loading_pipeline.start_next_epoch()
