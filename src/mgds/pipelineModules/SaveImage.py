@@ -2,17 +2,19 @@ import os
 import sys
 from typing import Callable
 
+import torch
 from torchvision import transforms
 from tqdm import tqdm
 
 from mgds.PipelineModule import PipelineModule
-from mgds.pipelineModuleTypes.SerialPipelineModule import SerialPipelineModule
+from mgds.pipelineModuleTypes.RandomAccessPipelineModule import RandomAccessPipelineModule
 
 
 class SaveImage(
     PipelineModule,
-    SerialPipelineModule,
+    RandomAccessPipelineModule,
 ):
+
     def __init__(
             self,
             image_in_name: str,
@@ -39,7 +41,10 @@ class SaveImage(
     def get_outputs(self) -> list[str]:
         return [self.image_in_name]
 
-    def start(self, variation: int, start_index: int):
+    def length(self) -> int:
+        return 0
+
+    def start(self, variation: int):
         path = os.path.join(self.path, "epoch-" + str(variation))
         if not os.path.exists(path):
             os.makedirs(path)
@@ -60,11 +65,8 @@ class SaveImage(
 
             image_tensor = (image_tensor - self.in_range_min) / (self.in_range_max - self.in_range_min)
 
-            image = t(image_tensor)
+            image = t(image_tensor.to(dtype=torch.float32))
             image.save(os.path.join(path, str(index) + '-' + name + '-' + self.image_in_name + ext))
 
-    def get_next_item(self) -> dict:
+    def get_item(self, variation: int, index: int, requested_name: str = None) -> dict:
         return {}
-
-    def has_next(self) -> bool:
-        return False
