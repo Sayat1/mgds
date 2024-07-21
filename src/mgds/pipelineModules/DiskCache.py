@@ -152,6 +152,11 @@ class DiskCache(
 
         return cache_exists and caching_done
 
+    def __clone_for_cache(self, x: Any):
+        if isinstance(x, torch.Tensor):
+            return x.clone()
+        return x
+
     def __refresh_cache(self, out_variation: int):
         if not self.variations_initialized:
             self.__init_variations()
@@ -186,10 +191,11 @@ class DiskCache(
                             split_item = {}
                             aggregate_item = {}
 
-                            for name in self.split_names:
-                                split_item[name] = self._get_previous_item(in_variation, name, in_index)
-                            for name in self.aggregate_names:
-                                aggregate_item[name] = self._get_previous_item(in_variation, name, in_index)
+                            with torch.no_grad():
+                                for name in self.split_names:
+                                    split_item[name] = self.__clone_for_cache(self._get_previous_item(in_variation, name, in_index))
+                                for name in self.aggregate_names:
+                                    aggregate_item[name] = self.__clone_for_cache(self._get_previous_item(in_variation, name, in_index))
 
                             torch.save(split_item, os.path.realpath(os.path.join(cache_dir, str(group_index) + '.pt')))
                             aggregate_cache[group_index] = aggregate_item
@@ -199,8 +205,13 @@ class DiskCache(
                               for (group_index, in_index)
                               in enumerate(self.group_indices[group_key]))
                         for i, f in enumerate(concurrent.futures.as_completed(fs)):
-                            f.result()
-                            if i % 100 == 0:
+                            try:
+                                f.result()
+                            except:
+                                self._state.executor.shutdown(
+                                    wait=True, cancel_futures=True)
+                                raise
+                            if i % 250 == 0:
                                 self._torch_gc()
                             bar.update(1)
 
