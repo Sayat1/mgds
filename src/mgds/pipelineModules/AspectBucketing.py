@@ -105,7 +105,7 @@ class AspectBucketing(
 
         possible_resolutions[1024] = [(1024,1024),(896,1152),(832,1216),(768,1344),(640,1600),(1152,896),(1216,832),(1344,768),(1600,640)]
         possible_aspects[1024] = [h / w for (h, w) in  possible_resolutions[1024]]
-
+        print("fixed sdxl resolution bucket used")
         return possible_resolutions, possible_aspects
 
     def __get_bucket(self, rand: Random, h: int, w: int, target_resolution: int) -> tuple[int, int]:
