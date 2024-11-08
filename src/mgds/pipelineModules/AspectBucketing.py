@@ -101,6 +101,10 @@ class AspectBucketing(
             possible_resolutions[target_resolution] = new_resolutions
             possible_aspects[target_resolution] = [h / w for (h, w) in new_resolutions]
 
+        print("SAYAT!!")
+        print(possible_resolutions)
+        print(possible_aspects)
+
         return possible_resolutions, possible_aspects
 
     def __get_bucket(self, rand: Random, h: int, w: int, target_resolution: int) -> tuple[int, int]:
