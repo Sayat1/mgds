@@ -65,41 +65,46 @@ class AspectBucketing(
             target_resolutions: list[int],
     ) -> tuple[dict[int, list[tuple[int, int]]], dict[int, list[float]]]:
         # all possible target aspect ratios
-        all_possible_input_aspects = [
-            (1.0, 1.0),
-            (1.0, 1.25),
-            (1.0, 1.5),
-            (1.0, 1.75),
-            (1.0, 2.0),
-            (1.0, 2.5),
-            (1.0, 3.0),
-            (1.0, 3.5),
-            (1.0, 4.0),
-        ]
+        # all_possible_input_aspects = [
+        #     (1.0, 1.0),
+        #     (1.0, 1.25),
+        #     (1.0, 1.5),
+        #     (1.0, 1.75),
+        #     (1.0, 2.0),
+        #     (1.0, 2.5),
+        #     (1.0, 3.0),
+        #     (1.0, 3.5),
+        #     (1.0, 4.0),
+        # ]
 
         possible_resolutions = {}
         possible_aspects = {}
 
-        for target_resolution in target_resolutions:
-            # normalize to the same pixel count
-            new_resolutions = [(
-                h / math.sqrt(h * w) * target_resolution,
-                w / math.sqrt(h * w) * target_resolution
-            ) for (h, w) in all_possible_input_aspects]
+        # for target_resolution in target_resolutions:
+        #     # normalize to the same pixel count
+        #     new_resolutions = [(
+        #         h / math.sqrt(h * w) * target_resolution,
+        #         w / math.sqrt(h * w) * target_resolution
+        #     ) for (h, w) in all_possible_input_aspects]
 
-            # add inverted dimensions
-            new_resolutions = new_resolutions + [(w, h) for (h, w) in new_resolutions]
+        #     # add inverted dimensions
+        #     new_resolutions = new_resolutions + [(w, h) for (h, w) in new_resolutions]
 
-            # quantization
-            new_resolutions = [self.__quantize_resolution(resolution, self.quantization) for resolution in
-                               new_resolutions]
+        #     # quantization
+        #     new_resolutions = [self.__quantize_resolution(resolution, self.quantization) for resolution in
+        #                        new_resolutions]
 
-            # remove duplicates
-            new_resolutions = list(set(new_resolutions))
+        #     # remove duplicates
+        #     new_resolutions = list(set(new_resolutions))
 
-            # add to lists
-            possible_resolutions[target_resolution] = new_resolutions
-            possible_aspects[target_resolution] = [h / w for (h, w) in new_resolutions]
+        #     # add to lists
+        #     possible_resolutions[target_resolution] = new_resolutions
+        #     possible_aspects[target_resolution] = [h / w for (h, w) in new_resolutions]
+        if not 1024 in target_resolutions:
+            raise ValueError("sdxl resolution must be 1024")
+
+        possible_resolutions[1024] = [(1024,1024),(896,1152),(832,1216),(768,1344),(640,1600),(1152,896),(1216,832),(1344,768),(1600,640)]
+        possible_aspects[1024] = [h / w for (h, w) in  possible_resolutions[1024]]
 
         return possible_resolutions, possible_aspects
 
