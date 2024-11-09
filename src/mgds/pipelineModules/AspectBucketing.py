@@ -103,7 +103,7 @@ class AspectBucketing(
         if not 1024 in target_resolutions:
             raise ValueError("sdxl resolution must be 1024")
 
-        possible_resolutions[1024] = [(1024,1024),(896,1152),(832,1216),(768,1344),(640,1600),(1152,896),(1216,832),(1344,768),(1600,640)]
+        possible_resolutions[1024] = [(1024,1024),(896,1152),(832,1280),(768,1344),(640,1536),(1152,896),(1280,832),(1344,768),(1536,640)]
         possible_aspects[1024] = [h / w for (h, w) in  possible_resolutions[1024]]
         print("fixed sdxl resolution bucket used")
         return possible_resolutions, possible_aspects
