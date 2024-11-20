@@ -56,7 +56,6 @@ class AspectBatchSorting(
         for bucket_key, bucket_index in batches:
             for i in range(bucket_index * self.batch_size, (bucket_index + 1) * self.batch_size):
                 index_list.append(bucket_dict[bucket_key][i])
-        print(batches)
         print(bucket_dict)
         print(index_list)
 
